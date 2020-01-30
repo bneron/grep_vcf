@@ -18,19 +18,22 @@ def parse_line(file):
     return current_pos, line
 
 
-def diff(txt_file, vcf_file):
+def diff_generator(txt_file, vcf_file):
     """
-    create a list of positions in txt_file which are not in vcf_file
-    the positions are extract from the first columns for txt_file and vcf_file
+    create a generator which can iterate over line in vcf
+    where position not appear in text file
+    the position are extract from the first column of text_file and vcf_file.
+
+    .. _warning:
+        the position in the text_file and vcf_file must be sorted (ascending)
 
     :param txt_file: the text file to extract
     :type txt_file: file object
     :param vcf_file: the vcf to compare
     :type vcf_file: file object
-    :return: the positions in file_txt which are not in vcf_file
-    :rtype: list of int
+    :return: a generator
+    :rtype: generator
     """
-    diff = []
     txt_pos, line = parse_line(txt_file)
     vcf_pos, _ = parse_line(vcf_file)
     vcf_end = False
@@ -51,7 +54,7 @@ def diff(txt_file, vcf_file):
             except StopIteration:
                 vcf_end = True
         else:  # txt_pos < vcf_pos
-            diff.append(line)
+            yield line
             try:
                 txt_pos, line = parse_line(txt_file)
             except StopIteration:
@@ -59,12 +62,10 @@ def diff(txt_file, vcf_file):
         if txt_end:
             break
         if vcf_end:
-            diff.append(line)
+            yield line
             for line in txt_file:
                 _, line = parse_line(line)  # to remove comment
-                diff.append(line)
-            break
-    return diff
+                yield line
 
 
 if __name__ == '__main__':
@@ -95,4 +96,5 @@ if __name__ == '__main__':
     # I open the both files
     # and parse them
     with open(text_path) as text, open(vcf_path) as vcf:
-        print(''.join(diff(text, vcf)), end="")
+        for line in diff(text, vcf):
+            print(line, end="")
