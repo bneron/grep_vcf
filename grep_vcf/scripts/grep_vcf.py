@@ -52,35 +52,67 @@ def parse_args(args):
     :return: The arguments parsed
     :rtype: :class:`aprgparse.Namespace` object.
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        epilog="For more details, visit the MacSyFinder website and see the MacSyFinder documentation.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="""
 
-    parser.add_argument("positions")
+grep_vcf - filter vcf to keep line at given positions.  
+""")
+
+    parser.add_argument("positions",
+                        help="The text file with the position to keep. "
+                             "It must be a tsv file where position are in first col."
+                             "lines starting with '#' are comments.")
     parser.add_argument("--vcf",
                         help="the path to the vcf file by default the same path as position file "
-                             "but with '.vcf' as extension"
+                             "but with '.vcf' as extension."
                         )
     parser.add_argument("--out",
                         default=sys.stdout,
-                        help="the path to an output file, default is stdout")
+                        help="the path to an output file, default is stdout."
+                             "if the file exists, it will be replaced")
+    parser.add_argument("--version",
+                        action='version',
+                        version=get_version_message(),
+                        help="display version information and quit."
+                        )
     parsed_args = parser.parse_args(args)
 
-    for path in text_path, vcf_path:
-        if not os.path.exists(vcf_path):
-            raise FileNotFoundError(f"the file {path} does not exists.")
+    if parsed_args.vcf is None:
+        parsed_args.vcf = os.palth.splitext(parsed_args.positions)[0] + '.vcf'
+
+    for path in parsed_args.positions, parsed_args.vcf:
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"The file {path} does not exists.")
 
     return parsed_args
 
 
 def main(args=None):
+    """
+
+    :param args: the arguments to use to run
+    :param args: list of str
+    """
     args = sys.argv[1:] if args is None else args
     parsed_args = parse_args(args)
 
-    text_path = parsed_args.positions
+    positions_path = parsed_args.positions
     vcf_path = parsed_args.vcf
 
-    with open(text_path) as text, open(vcf_path) as vcf:
-        for line in gv.diff_generator(text, vcf):
-            print(line, end="", file=parsed_args.out)
+    if parsed_args.out is not sys.stdout:
+        out = open(parsed_args.out, 'w')
+    else:
+        out = sys.stdout
+
+    try:
+        with open(positions_path) as positions, open(vcf_path) as vcf:
+            for line in gv.diff_generator(positions, vcf):
+                out.write(line)
+    finally:
+        if not out.closed and out.name != '<stdout>':
+            out.close()
 
 
 if __name__ == "__main__":
