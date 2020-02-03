@@ -26,6 +26,7 @@
 build/
 dist/
 doc/_build/
+grep_vcf.egg-info/
 
 ###########################
 # coverage files
