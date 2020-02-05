@@ -39,7 +39,7 @@ def get_version_message():
 Python {sys.version}
 
 grep_vcf is distributed under the terms of the GNU General Public License (GPLv3).
-See the COPYING file for details.
+See the LICENSE file for details.
 """
     return vers_msg
 
