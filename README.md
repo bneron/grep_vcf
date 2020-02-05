@@ -1,5 +1,8 @@
 # grep_vcf
 
+[![License (GPL version 3)](https://img.shields.io/badge/license-GNU%20GPL%20version%203-blue.svg?style=flat-square)](https://opensource.org/licenses/GPL-3.0)
+[![Build Status](https://travis-ci.org/bneron/grep_vcf.svg?branch=master)](https://travis-ci.org/bneron/grep_vcf)
+
 grep_vcf - filter vcf to keep lines that match positions given in reference file.  
 
 <pre>
