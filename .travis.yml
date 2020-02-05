@@ -1,0 +1,19 @@
+language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+# Apply only on main branches
+branches:
+  except:
+       - /^feat.*$/
+install:
+  - pip install git@https://github.com/bneron/grep_vcf.git#egg=grep_vcf
+
+# test
+script:
+  - coverage run --source grep_vcf tests/run_tests.py -vv
+  - coverage report
+
+after_success:
+  - coveralls
