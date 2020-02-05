@@ -53,34 +53,47 @@ def parse_args(args):
     :rtype: :class:`aprgparse.Namespace` object.
     """
     parser = argparse.ArgumentParser(
-        epilog="For more details, visit the MacSyFinder website and see the MacSyFinder documentation.",
+        epilog="For more details, visit the grep vcf github page and see the grep vcf documentation.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="""
+  _____                 __      _______ ______ 
+ / ____|                \ \    / / ____|  ____|
+| |  __ _ __ ___ _ __    \ \  / / |    | |__   
+| | |_ | '__/ _ \ '_ \    \ \/ /| |    |  __|  
+| |__| | | |  __/ |_) |    \  / | |____| |     
+ \_____|_|  \___| .__/      \/   \_____|_|     
+                | |                            
+                |_|                            
 
-grep_vcf - filter vcf to keep line at given positions.  
+grep_vcf - filter vcf to keep lines that match positions given in reference file.  
 """)
 
     parser.add_argument("positions",
-                        help="The text file with the position to keep. "
-                             "It must be a tsv file where position are in first col."
-                             "lines starting with '#' are comments.")
+                        help="The text file with the positions looking for in vcf file. "
+                             "It must be a tsv file (https://en.wikipedia.org/wiki/Tab-separated_values)."
+                             "where position are in first column."
+                             "Lines starting with '#' are considering as comments.")
     parser.add_argument("--vcf",
-                        help="the path to the vcf file by default the same path as position file "
-                             "but with '.vcf' as extension."
+                        help="The path to the vcf file. By default grep_vcf search for the same path as position file"
+                             " but with '.vcf' as extension."
                         )
     parser.add_argument("--out",
                         default=sys.stdout,
-                        help="the path to an output file, default is stdout."
-                             "if the file exists, it will be replaced")
-    parser.add_argument("--version",
+                        help="The path to an output file, default is stdout. "
+                             "If the file exists, it will be replaced.")
+    parser.add_argument("--invert", "-v",
+                        action='store_true',
+                        default=False,
+                        help="Invert the sense of matching, to select non-matching vcf lines.")
+    parser.add_argument("--version", "-V",
                         action='version',
                         version=get_version_message(),
-                        help="display version information and quit."
+                        help="Display version information and quit."
                         )
     parsed_args = parser.parse_args(args)
 
     if parsed_args.vcf is None:
-        parsed_args.vcf = os.palth.splitext(parsed_args.positions)[0] + '.vcf'
+        parsed_args.vcf = os.path.splitext(parsed_args.positions)[0] + '.vcf'
 
     for path in parsed_args.positions, parsed_args.vcf:
         if not os.path.exists(path):
@@ -108,7 +121,12 @@ def main(args=None):
 
     try:
         with open(positions_path) as positions, open(vcf_path) as vcf:
-            for line in gv.diff_generator(positions, vcf):
+            if parsed_args.invert:
+                gen = gv.invert_match_generator(positions, vcf)
+            else:
+                gen = gv.match_generator(positions, vcf)
+
+            for line in gen:
                 out.write(line)
     finally:
         if not out.closed and out.name != '<stdout>':
