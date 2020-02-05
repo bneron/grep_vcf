@@ -85,6 +85,10 @@ grep_vcf - filter vcf to keep lines that match positions given in reference file
                         action='store_true',
                         default=False,
                         help="Invert the sense of matching, to select non-matching vcf lines.")
+    parser.add_argument("--switch",
+                        action='store_true',
+                        default=False,
+                        help="Filter position file to keep lines that position match in vcf")
     parser.add_argument("--version", "-V",
                         action='version',
                         version=get_version_message(),
@@ -121,10 +125,11 @@ def main(args=None):
 
     try:
         with open(positions_path) as positions, open(vcf_path) as vcf:
+            ref, target = (positions, vcf) if not parsed_args.switch else (vcf, positions)
             if parsed_args.invert:
-                gen = gv.invert_match_generator(positions, vcf)
+                gen = gv.invert_match_generator(ref, target)
             else:
-                gen = gv.match_generator(positions, vcf)
+                gen = gv.match_generator(ref, target)
 
             for line in gen:
                 out.write(line)

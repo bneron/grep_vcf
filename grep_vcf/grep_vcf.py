@@ -18,7 +18,7 @@
 # GNU General Public License for more details .                         #
 #                                                                       #
 # You should have received a copy of the GNU General Public License     #
-# along with grep_vcf (LICENSE).                                     #
+# along with grep_vcf (LICENSE).                                        #
 # If not, see <https://www.gnu.org/licenses/>.                          #
 #########################################################################
 
@@ -67,142 +67,142 @@ def _until_the_end(file):
             break
 
 
-def match_generator(txt_file, vcf_file):
+def match_generator(ref_file, target_file):
     """
-    create a generator which can iterate over line in vcf
-    where position not appear in text file
-    the position are extract from the first column of text_file and vcf_file.
+    create a generator which can iterate over line in target_file
+    where position not appear in reference file
+    the position are extract from the first column of ref_file and target_file.
 
     .. _warning:
-        the position in the text_file and vcf_file must be sorted (ascending)
+        the position in the text_file and target_file must be sorted (ascending)
 
-    :param txt_file: the text file to extract
-    :type txt_file: file object
-    :param vcf_file: the vcf to compare
-    :type vcf_file: file object
+    :param ref_file: the text file to extract
+    :type ref_file: file object
+    :param target_file: the vcf to compare
+    :type target_file: file object
     :return: a generator
     :rtype: generator
     """
     try:
-        txt_pos, _ = _parse_line(txt_file)
-        txt_end = False
+        ref_pos, _ = _parse_line(ref_file)
+        ref_end = False
     except StopIteration:
-        txt_end = True
+        ref_end = True
     except ValueError as err:
         raise ValueError(f"position file has wrong format: {err}") from None
     try:
-        vcf_pos, line = _parse_line(vcf_file)
-        vcf_end = False
+        target_pos, line = _parse_line(target_file)
+        target_end = False
     except StopIteration:
-        vcf_end = True
+        target_end = True
     except ValueError as err:
         raise ValueError(f"vcf has wrong format: {err}") from None
 
     # treat limit cases
     # when a file or both are empty
-    if vcf_end or txt_end:
+    if target_end or ref_end:
         return
     else:
         while True:
             try:
-                if txt_pos == vcf_pos:
+                if ref_pos == target_pos:
                     yield line
                     try:
-                        vcf_pos, line = _parse_line(vcf_file)
+                        target_pos, line = _parse_line(target_file)
                     except ValueError as err:
                         raise ValueError(f"vcf has wrong line: {err}") from None
                     try:
-                        txt_pos, _ = _parse_line(txt_file)
+                        ref_pos, _ = _parse_line(ref_file)
                     except ValueError as err:
                         raise ValueError(f"position file has wrong format: {err}") from None
-                elif txt_pos > vcf_pos:
+                elif ref_pos > target_pos:
                     try:
-                        vcf_pos, line = _parse_line(vcf_file)
+                        target_pos, line = _parse_line(target_file)
                     except ValueError as err:
                         raise ValueError(f"vcf has wrong line: {err}") from None
-                else:  # txt_pos < vcf_pos
+                else:  # ref_pos < target_pos
                     try:
-                        txt_pos, _ = _parse_line(txt_file)
+                        ref_pos, _ = _parse_line(ref_file)
                     except ValueError as err:
                         raise ValueError(f"position file has wrong format: {err}") from None
             except StopIteration:
                 break
 
 
-def invert_match_generator(txt_file, vcf_file):
+def invert_match_generator(ref_file, target_file):
     """
-    create a generator which can iterate over line in vcf
-    where position not appear in text file
-    the position are extract from the first column of text_file and vcf_file.
+    create a generator which can iterate over line in target_file
+    where position not appear in reference file
+    the position are extract from the first column of ref_file and target_file.
 
     .. _warning:
-        the position in the text_file and vcf_file must be sorted (ascending)
+        the position in the text_file and target_file must be sorted (ascending)
 
-    :param txt_file: the text file to extract
-    :type txt_file: file object
-    :param vcf_file: the vcf to compare
-    :type vcf_file: file object
+    :param ref_file: the text file to extract
+    :type ref_file: file object
+    :param target_file: the vcf to compare
+    :type target_file: file object
     :return: a generator
     :rtype: generator
     """
     try:
-        txt_pos, _ = _parse_line(txt_file)
-        txt_end = False
+        ref_pos, _ = _parse_line(ref_file)
+        ref_end = False
     except StopIteration:
-        txt_end = True
+        ref_end = True
     except ValueError as err:
         raise ValueError(f"position file has wrong format: {err}")
     try:
-        vcf_pos, line = _parse_line(vcf_file)
-        vcf_end = False
+        target_pos, line = _parse_line(target_file)
+        target_end = False
     except StopIteration:
-        vcf_end = True
+        target_end = True
     except ValueError as err:
         raise ValueError(f"vcf has wrong format: {err}")
 
     # treat limit cases
     # when a file or both are empty
-    if vcf_end:
+    if target_end:
         return
-    elif txt_end and not vcf_end:
+    elif ref_end and not target_end:
         yield line
-        for line in _until_the_end(vcf_file):
+        for line in _until_the_end(target_file):
             yield line
     else:
         while True:
-            if txt_pos == vcf_pos:
+            if ref_pos == target_pos:
                 try:
-                    vcf_pos, line = _parse_line(vcf_file)
+                    target_pos, line = _parse_line(target_file)
                 except StopIteration:
-                    vcf_end = True
+                    target_end = True
                 except ValueError as err:
                     raise ValueError(f"vcf has wrong line: {err}") from None
                 try:
-                    txt_pos, _ = _parse_line(txt_file)
+                    ref_pos, _ = _parse_line(ref_file)
                 except StopIteration:
-                    txt_end = True
+                    ref_end = True
                 except ValueError as err:
                     raise ValueError(f"position file has wrong format: {err}") from None
-            elif txt_pos > vcf_pos:
+            elif ref_pos > target_pos:
                 yield line
                 try:
-                    vcf_pos, line = _parse_line(vcf_file)
+                    target_pos, line = _parse_line(target_file)
                 except StopIteration:
-                    vcf_end = True
+                    target_end = True
                 except ValueError as err:
                     raise ValueError(f"vcf has wrong line: {err}") from None
-            else:  # txt_pos < vcf_pos
+            else:  # ref_pos < target_pos
                 try:
-                    txt_pos, _ = _parse_line(txt_file)
+                    ref_pos, _ = _parse_line(ref_file)
                 except StopIteration:
-                    txt_end = True
+                    ref_end = True
                 except ValueError as err:
                     raise ValueError(f"position file has wrong format: {err}") from None
-            if vcf_end:
+            if target_end:
                 break
-            elif txt_end: #and not vcf_end
+            elif ref_end:  # and not target_end
                 yield line
-                for line in _until_the_end(vcf_file):
+                for line in _until_the_end(target_file):
                     yield line
                 break
 
