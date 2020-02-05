@@ -18,7 +18,7 @@
 # GNU General Public License for more details .                         #
 #                                                                       #
 # You should have received a copy of the GNU General Public License     #
-# along with MacSyFinder (COPYING).                                     #
+# along with grep_vcf (LICENSE).                                     #
 # If not, see <https://www.gnu.org/licenses/>.                          #
 #########################################################################
 
