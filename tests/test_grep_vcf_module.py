@@ -181,7 +181,7 @@ class GrepVcfTestModule(GrepVcfTest):
         with self.assertRaises(ValueError):
             _ = list(grep_vcf.invert_match_generator(pos_txt, vcf_txt))
 
-    def test_match_generator_bad_pos2(self):
+    def test_invert_match_generator_bad_pos2(self):
         vcf_txt = StringIO(''.join(self.vcf_text))
         pos_text = self.pos_text[:]
         pos_text.insert(1, "4.5\tbad position\n")
