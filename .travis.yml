@@ -8,7 +8,7 @@ branches:
   except:
        - /^feat.*$/
 install:
-  - pip install git@https://github.com/bneron/grep_vcf.git#egg=grep_vcf
+  - pip install git+https://github.com/bneron/grep_vcf.git#egg=grep_vcf
 
 # test
 script:
