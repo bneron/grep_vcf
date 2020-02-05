@@ -7,6 +7,10 @@ python:
 branches:
   except:
        - /^feat.*$/
+
+before_install:
+  - pip install python-coveralls coverage
+
 install:
   - pip install git+https://github.com/bneron/grep_vcf.git#egg=grep_vcf
 
