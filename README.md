@@ -1,19 +1,25 @@
 # grep_vcf
 
 grep_vcf - filter vcf to keep lines that match positions given in reference file.  
+
 <pre>
+grep_vcf - filter vcf to keep lines that match positions given in reference file.  
+
 positional arguments:
-  positions      The text file with the positions looking for in vcf file. 
-                 It must be a tsv file (https://en.wikipedia.org/wiki/Tab-separated_values)
-                 where position are in first column. 
+  positions      The text file with the positions looking for in vcf file. It
+                 must be a tsv file (https://en.wikipedia.org/wiki/Tab-separated_values).
+                 Where position are in first column.
                  Lines starting with '#' are considering as comments.
 
 optional arguments:
   -h, --help     show this help message and exit
-  --vcf VCF      The path to the vcf file. By default grep_vcf search for the same path as position
-                 file but with '.vcf' as extension.
-  --out OUT      The path to an output file, default is stdout. If the file exists, it will be replaced.
-  --invert, -v   Invert the sense of matching, to select non-matching vcf lines.
+  --vcf VCF      The path to the vcf file. By default grep_vcf search for the
+                 same path as position file but with '.vcf' as extension.
+  --out OUT      The path to an output file, default is stdout. If the file
+                 exists, it will be replaced.
+  --invert, -v   Invert the sense of matching, to select non-matching vcf
+                 lines.
+  --switch       Filter position file to keep lines that position match in vcf
   --version, -V  Display version information and quit.
 </pre>
 
