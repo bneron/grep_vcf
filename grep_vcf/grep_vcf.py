@@ -30,21 +30,44 @@ def _parse_line(file):
     Go to next line and parse it, extract the first field and transform it in int.
     Ignore comments (line starting with #)
 
-    :param file: the file to parse
+    :param file: the file to parse.
+                 it must be a tsv file with an integer as first column.
     :type file: a file object
     :return: the position parsed
     :rtype: int
     :raise StopIteration: when reach the end of file
+    :raise ValueError: when first column can not be cast in an integer
     """
-    line = next(file)
-    while line.startswith('#'):
-        line = next(file)
+    line = next(file).lstrip()
+    while line.startswith('#') or not line:
+        line = next(file).lstrip()
     else:
-        current_pos = int(line.split()[0])
+        try:
+            current_pos = int(line.split()[0])
+        except ValueError as err:
+            line = line.rstrip('\n')
+            raise ValueError(f"{line}: {err}")
     return current_pos, line
 
 
-def diff_generator(txt_file, vcf_file):
+def _until_the_end(file):
+    """
+    Iterate over lines until the end of file.
+    Skip line starting with '#'
+
+    :param file: the file to iterate over
+    :return: lines
+    :rtype: str
+    """
+    while file:
+        try:
+            _, line = _parse_line(file)  # to remove comment
+            yield line
+        except StopIteration:
+            break
+
+
+def match_generator(txt_file, vcf_file):
     """
     create a generator which can iterate over line in vcf
     where position not appear in text file
@@ -60,36 +83,126 @@ def diff_generator(txt_file, vcf_file):
     :return: a generator
     :rtype: generator
     """
-    txt_pos, line = _parse_line(txt_file)
-    vcf_pos, _ = _parse_line(vcf_file)
-    vcf_end = False
-    txt_end = False
-    while True:
-        if txt_pos == vcf_pos:
+    try:
+        txt_pos, _ = _parse_line(txt_file)
+        txt_end = False
+    except StopIteration:
+        txt_end = True
+    except ValueError as err:
+        raise ValueError(f"position file has wrong format: {err}") from None
+    try:
+        vcf_pos, line = _parse_line(vcf_file)
+        vcf_end = False
+    except StopIteration:
+        vcf_end = True
+    except ValueError as err:
+        raise ValueError(f"vcf has wrong format: {err}") from None
+
+    # treat limit cases
+    # when a file or both are empty
+    if vcf_end or txt_end:
+        return
+    else:
+        while True:
             try:
-                vcf_pos, _ = _parse_line(vcf_file)
+                if txt_pos == vcf_pos:
+                    yield line
+                    try:
+                        vcf_pos, line = _parse_line(vcf_file)
+                    except ValueError as err:
+                        raise ValueError(f"vcf has wrong line: {err}") from None
+                    try:
+                        txt_pos, _ = _parse_line(txt_file)
+                    except ValueError as err:
+                        raise ValueError(f"position file has wrong format: {err}") from None
+                elif txt_pos > vcf_pos:
+                    try:
+                        vcf_pos, line = _parse_line(vcf_file)
+                    except ValueError as err:
+                        raise ValueError(f"vcf has wrong line: {err}") from None
+                else:  # txt_pos < vcf_pos
+                    try:
+                        txt_pos, _ = _parse_line(txt_file)
+                    except ValueError as err:
+                        raise ValueError(f"position file has wrong format: {err}") from None
             except StopIteration:
-                vcf_end = True
-            try:
-                txt_pos, line = _parse_line(txt_file)
-            except StopIteration:
-                txt_end = True
-        elif txt_pos > vcf_pos:
-            try:
-                vcf_pos, _ = _parse_line(vcf_file)
-            except StopIteration:
-                vcf_end = True
-        else:  # txt_pos < vcf_pos
+                break
+
+
+def invert_match_generator(txt_file, vcf_file):
+    """
+    create a generator which can iterate over line in vcf
+    where position not appear in text file
+    the position are extract from the first column of text_file and vcf_file.
+
+    .. _warning:
+        the position in the text_file and vcf_file must be sorted (ascending)
+
+    :param txt_file: the text file to extract
+    :type txt_file: file object
+    :param vcf_file: the vcf to compare
+    :type vcf_file: file object
+    :return: a generator
+    :rtype: generator
+    """
+    try:
+        txt_pos, _ = _parse_line(txt_file)
+        txt_end = False
+    except StopIteration:
+        txt_end = True
+    except ValueError as err:
+        raise ValueError(f"position file has wrong format: {err}")
+    try:
+        vcf_pos, line = _parse_line(vcf_file)
+        vcf_end = False
+    except StopIteration:
+        vcf_end = True
+    except ValueError as err:
+        raise ValueError(f"vcf has wrong format: {err}")
+
+    # treat limit cases
+    # when a file or both are empty
+    if vcf_end:
+        return
+    elif txt_end and not vcf_end:
+        yield line
+        for line in _until_the_end(vcf_file):
             yield line
-            try:
-                txt_pos, line = _parse_line(txt_file)
-            except StopIteration:
-                txt_end = True
-        if txt_end:
-            break
-        if vcf_end:
-            yield line
-            for line in txt_file:
-                _, line = _parse_line(line)  # to remove comment
+    else:
+        while True:
+            if txt_pos == vcf_pos:
+                try:
+                    vcf_pos, line = _parse_line(vcf_file)
+                except StopIteration:
+                    vcf_end = True
+                except ValueError as err:
+                    raise ValueError(f"vcf has wrong line: {err}") from None
+                try:
+                    txt_pos, _ = _parse_line(txt_file)
+                except StopIteration:
+                    txt_end = True
+                except ValueError as err:
+                    raise ValueError(f"position file has wrong format: {err}") from None
+            elif txt_pos > vcf_pos:
                 yield line
+                try:
+                    vcf_pos, line = _parse_line(vcf_file)
+                except StopIteration:
+                    vcf_end = True
+                except ValueError as err:
+                    raise ValueError(f"vcf has wrong line: {err}") from None
+            else:  # txt_pos < vcf_pos
+                try:
+                    txt_pos, _ = _parse_line(txt_file)
+                except StopIteration:
+                    txt_end = True
+                except ValueError as err:
+                    raise ValueError(f"position file has wrong format: {err}") from None
+            if vcf_end:
+                break
+            elif txt_end: #and not vcf_end
+                yield line
+                for line in _until_the_end(vcf_file):
+                    yield line
+                break
 
