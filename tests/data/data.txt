@@ -1,0 +1,7 @@
+4	txt ligne 1
+5	txt ligne 2
+7	txt ligne 3
+# bla bla
+9	txt ligne 4
+10	txt ligne 5
+11	txt ligne 6
