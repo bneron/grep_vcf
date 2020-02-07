@@ -31,7 +31,7 @@ release = '0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
-              'sphinx_autodoc_typehints',
+              # 'sphinx_autodoc_typehints', # does not work with readthedocs
               'sphinx.ext.doctest',
               'sphinx.ext.todo',
               'sphinx.ext.coverage',
