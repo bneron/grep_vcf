@@ -65,7 +65,7 @@ def parse_args(args):
                 | |                            
                 |_|                            
 
-grep_vcf - filter vcf to keep lines that match positions given in reference file.  
+grep_vcf is a tiny tool to filter vcf file based on position file and vice et versa.  
 """)
 
     parser.add_argument("positions",

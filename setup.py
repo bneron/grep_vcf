@@ -50,8 +50,8 @@ Common commands: (see '--help-commands' for more)
 
 setup(name='grep_vcf',
       version=gv_version,
-      description="",
-      long_description='README.md',
+      description="grep_vcf - filter vcf to keep lines that match positions given in reference file.",
+      long_description=open('README.md').read(),
       author="Bertrand Néron",
       author_email="bneron@pasteur.fr",
       url="https://github.com/bneron/grep_vcf",
