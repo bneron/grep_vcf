@@ -29,7 +29,7 @@ optional arguments:
 # Installation
 
 ```bash
-python pip install git@https://github.com/bneron/grep_vcf.git#egg=grep_vcf
+pip install git@https://github.com/bneron/grep_vcf.git#egg=grep_vcf
 ```
 
 ## Documentation
