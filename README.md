@@ -2,7 +2,8 @@
 
 [![License (GPL version 3)](https://img.shields.io/badge/license-GNU%20GPL%20version%203-blue.svg?style=flat-square)](https://opensource.org/licenses/GPL-3.0)
 [![Build Status](https://travis-ci.org/bneron/grep_vcf.svg?branch=master)](https://travis-ci.org/bneron/grep_vcf)
-
+[![Documentation Status](https://readthedocs.org/projects/grep-vcf/badge/?version=latest)](https://grep-vcf.readthedocs.io/en/latest/?badge=latest)
+      
 grep_vcf is a tiny tool to filter vcf file based on position file and *vice et versa*.  
 
 <pre>
@@ -34,7 +35,7 @@ pip install git@https://github.com/bneron/grep_vcf.git#egg=grep_vcf
 
 ## Documentation
 
-TODO
+[![Documentation Status](https://readthedocs.org/projects/grep-vcf/badge/?version=latest)](https://grep-vcf.readthedocs.io/en/latest/?badge=latest)
 
 ## Licence:
 
