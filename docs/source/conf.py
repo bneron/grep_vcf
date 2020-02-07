@@ -13,11 +13,9 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
-print(sys.path)
 
 from grep_vcf import __version__ as gv_version
 
-print(gv_version)
 # -- Project information -----------------------------------------------------
 
 project = 'grep_vcf'
