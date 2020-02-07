@@ -24,11 +24,15 @@
 
 import unittest
 import os
+import sys
+from contextlib import contextmanager
+from io import StringIO
 
 
 class GrepVcfTest(unittest.TestCase):
 
     _tests_dir = os.path.normpath(os.path.dirname(__file__))
+    _data_dir = os.path.join(_tests_dir, "data")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -41,3 +45,24 @@ class GrepVcfTest(unittest.TestCase):
             return data_path
         else:
             raise IOError("data '{}' does not exists".format(data_path))
+
+    @contextmanager
+    def catch_io(self, out=False, err=False):
+        """
+        Catch stderr and stdout of the code running within this block.
+        """
+        old_out = sys.stdout
+        new_out = old_out
+        old_err = sys.stderr
+        new_err = old_err
+        if out:
+            new_out = StringIO()
+            new_out.name = '<stdout>'
+        if err:
+            new_err = StringIO()
+            new_err.name = '<stderr>'
+        try:
+            sys.stdout, sys.stderr = new_out, new_err
+            yield sys.stdout, sys.stderr
+        finally:
+            sys.stdout, sys.stderr = old_out, old_err
