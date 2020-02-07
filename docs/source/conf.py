@@ -12,9 +12,12 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
+print(sys.path)
 
+from grep_vcf import __version__ as gv_version
 
+print(gv_version)
 # -- Project information -----------------------------------------------------
 
 project = 'grep_vcf'
@@ -22,7 +25,7 @@ copyright = '2020, Bertrand Neron'
 author = 'Bertrand Neron'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = gv_version
 
 
 # -- General configuration ---------------------------------------------------
@@ -47,6 +50,8 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# The master toctree document.
+master_doc = 'index'
 
 # -- Options for HTML output -------------------------------------------------
 
